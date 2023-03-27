@@ -38,3 +38,74 @@ block_dict = {
     
 
 }
+#10*20的方塊陣列(遊戲內主背景)
+blocks_array = []
+for i in range(10):
+    blocks_array.append([0]*20)
+#4*4的方塊矩陣(顯示方塊)
+blocks = []
+for i in range(4):
+    blocks.append([0]*4)
+#儲存下一個方塊的顏色
+blocks_next = []
+for i in range(4):
+    blocks_next.append([0]*4)
+#儲存下一個方塊的形狀
+blocks_next_shape = []
+for i in range(4):
+    blocks_next_shape.append([0]*4)
+#儲存地圖變異
+blocks_list = []
+for i in range(10):
+    blocks_list.append([0]*20)
+
+# 方塊在容器的位置.
+# (-2~6)(  為6的時候不能旋轉方塊).
+container_x = 3
+# (-3~16)(-3表示在上邊界外慢慢往下掉).
+container_y =-4
+
+# 除錯訊息.
+debug_message = False
+# 判斷遊戲結束.
+game_over = False
+
+# 磚塊下降速度.
+block_down_speed = block_fast
+
+# 方塊編號(1~7).
+block_id = 1
+# 方塊狀態(0~3).
+block_state = 0
+
+# 下一個磚塊編號(1~7).
+block_next_id = 1
+
+# 最大連線數.
+lines_number_max = 0
+# 本場連線數.
+lines_number = 0
+
+# 遊戲狀態.
+# 0:遊戲進行中.
+# 1:清除磚塊.
+game_mode = 0
+# 函數:秀字.
+# 傳入:
+#   text    : 字串.
+#   x, y    : 坐標.
+#   color   : 顏色.
+def showFont( text, x ,y, color):
+    global canvas
+    text = font.render(text, True, color) 
+    canvas.blit( text, (x,y))
+# 函數:取得磚塊索引陣列.
+# 傳入:
+#   brickId : 方塊編號(1~7).
+#   state   : 方塊狀態(0~3).
+def getBlockIndex( blockId, state):
+    global block_dict
+    # 組合字串.
+    blockKey = str(blockId)+str(state)
+    # 回傳方塊陣列.
+    return block_dict[blockKey]
