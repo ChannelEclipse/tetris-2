@@ -109,3 +109,49 @@ def getBlockIndex( blockId, state):
     blockKey = str(blockId)+str(state)
     # 回傳方塊陣列.
     return block_dict[blockKey]
+#-------------------------------------------------------------------------
+# 轉換定義方塊到方塊陣列.
+# 傳入:
+#   brickId : 方塊編號(1~7).
+#   state   : 方塊狀態(0~3).
+#-------------------------------------------------------------------------
+def transformToBlocks( blockId, state):
+    global blocks
+
+    # 清除方塊陣列.
+    for x in range(4):
+        for y in range(4):
+            blocks[x][y] = 0
+     
+    # 取得磚塊索引陣列.
+    p_brick = getBlockIndex(blockId, state)
+    
+    # 轉換方塊到方塊陣列.
+    for i in range(4):        
+        bx = int(p_brick[i] % 4)
+        by = int(p_brick[i] / 4)
+        blocks[bx][by] = blockId
+#-------------------------------------------------------------------------
+# 判斷是否可以複製到容器內.
+# 傳出:
+#   true    : 可以.
+#   false   : 不可以.
+#-------------------------------------------------------------------------
+def ifCopyToBlocksArray():
+    global blocks,blocks_array
+    global container_x,container_y
+
+    posX = 0
+    posY = 0
+    for x in range(4):
+        for y in range(4):
+           if (blocks[x][y] != 0):
+                posX = container_x + x
+                posY = container_y + y
+                if (posX >= 0 and posY >= 0):
+                    try:
+                        if (blocks_array[posX][posY] != 0):
+                            return False
+                    except:
+                        return False
+    return True
