@@ -2,8 +2,8 @@ import os, sys, random, time, pygame
 from pygame.locals import*
 from blocks import*
 #方塊下降速度
-brick_normal = 0.01
-brick_fast   = 0.5
+block_normal = 0.01
+block_fast   = 0.5
 #視窗大小
 canvas_h = 600
 canvas_w = 800
@@ -35,8 +35,6 @@ block_dict = {
     "50": ( 9,12,13,14), "51": ( 4, 8, 9,12), "52": (8,  9, 10, 13), "53": (5,  8,  9, 13), # T.
     "60": ( 8, 9,12,13),    # 方形方塊.
     "70": (12,13,14,15), "71": ( 1, 5, 9,13)    #條狀方塊.
-    
-
 }
 #10*20的方塊陣列(遊戲內主背景)
 blocks_array = []
@@ -85,6 +83,8 @@ block_next_id = 1
 lines_number_max = 0
 # 本場連線數.
 lines_number = 0
+# 設定字型-黑體.
+font = pygame.font.SysFont("simsunnsimsun", 24)
 
 # 遊戲狀態.
 # 0:遊戲進行中.
@@ -109,6 +109,7 @@ def getBlockIndex( blockId, state):
     blockKey = str(blockId)+str(state)
     # 回傳方塊陣列.
     return block_dict[blockKey]
+
 #-------------------------------------------------------------------------
 # 轉換定義方塊到方塊陣列.
 # 傳入:
@@ -124,12 +125,12 @@ def transformToBlocks( blockId, state):
             blocks[x][y] = 0
      
     # 取得磚塊索引陣列.
-    p_brick = getBlockIndex(blockId, state)
+    p_block = getBlockIndex(blockId, state)
     
     # 轉換方塊到方塊陣列.
     for i in range(4):        
-        bx = int(p_brick[i] % 4)
-        by = int(p_brick[i] / 4)
+        bx = int(p_block[i] % 4)
+        by = int(p_block[i] / 4)
         blocks[bx][by] = blockId
 #-------------------------------------------------------------------------
 # 判斷是否可以複製到容器內.
@@ -155,3 +156,154 @@ def ifCopyToBlocksArray():
                     except:
                         return False
     return True
+#-------------------------------------------------------------------------
+# 複製方塊到容器內.
+#-------------------------------------------------------------------------
+def copyToBlockArray():
+    global blocks, blocks_array
+    global container_x, container_y
+
+    posX = 0
+    posY = 0
+    for x in range(4):
+        for y in range(4):
+            if (blocks[x][y] !=0):
+                posX = container_x + x
+                posY = container_y + y
+                if (posX >= 0 and posY >= 0):
+                    blocks_array[posX][posY] = blocks[x][y]
+#------------------------------------------------------------------------
+#遊戲初始階段
+#------------------------------------------------------------------------
+def resetGame():
+    global block_fast
+    global blocks_array, blocks, lines_number, lines_number_max
+
+    # 清除磚塊陣列.
+    for x in range(10):
+        for y in range(20):
+            blocks_array[x][y] = 0
+            
+    # 清除方塊陣列.
+    for x in range(4):
+        for y in range(4):
+            blocks[x][y] = 0
+
+    # 初始磚塊下降速度.
+    brick_down_speed = block_fast
+
+    # 最大連線數.
+    if(lines_number > lines_number_max):
+        lines_number_max = lines_number
+    # 連線數.
+    lines_number = 0
+
+#---------------------------------------------------------------------------
+# 判斷與設定要清除的方塊.
+# 傳出:
+#   連線數
+#---------------------------------------------------------------------------
+def ifClearBrick():
+    pointNum = 0
+    lineNum = 0
+    for y in range(20):
+        for x in range(10):
+            if (blocks_array[x][y] > 0):
+                pointNum = pointNum + 1
+            if (pointNum == 10):
+                for i in range(10):
+                    lineNum = lineNum + 1
+                    blocks_array[i][y] = 9
+        pointNum = 0
+    return lineNum
+#-------------------------------------------------------------------------
+# 更新下一個磚塊.
+#-------------------------------------------------------------------------
+def updateNextBricks(brickId):
+    global blocks_next
+    
+    # 清除方塊陣列.
+    for y in range(4):
+        for x in range(4):
+            blocks_next[x][y] = 0
+
+    # 取得磚塊索引陣列.
+    pBrick = getBlockIndex(brickId, 0)
+
+    # 轉換方塊到方塊陣列.
+    for i in range(4):
+        bx = int(pBrick[i] % 4)
+        by = int(pBrick[i] / 4)
+        blocks_next[bx][by] = brickId
+
+    # ColorVer:設定背景顏色.
+    background_blocks_next.color = color_black
+
+    # 更新背景區塊.
+    background_blocks_next.update()
+
+    # 更新磚塊圖.
+    pos_y = 52
+    for y in range(4):
+        pos_x = 592
+        for x in range(4):
+            if(blocks_next[x][y] != 0):
+                blocks_next_shape[x][y].rect[0] = pos_x
+                blocks_next_shape[x][y].rect[1] = pos_y
+
+                # ColorVer:依照方塊編號設定顏色.
+                if (blocks_next[x][y]==1):
+                    blocks_next_shape[x][y].color = box_color_orange
+                elif (blocks_next[x][y]==2):
+                    blocks_next_shape[x][y].color = box_color_purple
+                elif (blocks_next[x][y]==3):
+                    blocks_next_shape[x][y].color = box_color_blue
+                elif (blocks_next[x][y]==4):
+                    blocks_next_shape[x][y].color = box_color_light_red
+                elif (blocks_next[x][y]==5):
+                    blocks_next_shape[x][y].color = box_color_light_blue
+                elif (blocks_next[x][y]==6):
+                    blocks_next_shape[x][y].color = box_color_yellow
+                elif (blocks_next[x][y]==7):
+                    blocks_next_shape[x][y].color = box_color_green
+                elif (blocks_next[x][y]==9):
+                    blocks_next_shape[x][y].color = color_white
+
+                blocks_next_shape[x][y].update()
+            pos_x = pos_x + 28        
+        pos_y = pos_y + 28
+#-------------------------------------------------------------------------
+# 初始.
+pygame.init()
+# 顯示Title.
+pygame.display.set_caption(u"俄羅斯方塊遊戲")
+# 建立畫佈大小.
+# 全螢幕模式.
+canvas = pygame.display.set_mode((canvas_w, canvas_h), pygame.DOUBLEBUF and pygame.FULLSCREEN )
+# 視窗模式.
+#canvas = pygame.display.set_mode((canvas_width, canvas_height))
+
+# 時脈.
+clock = pygame.time.Clock()
+
+# 查看系統支持那些字體
+#print(pygame.font.get_fonts())
+
+
+
+
+# 將繪圖方塊放入陣列.
+for y in range(20):
+    for x in range(10):
+        blocks_list[x][y] = Block(pygame, canvas, "brick_x_" + str(x) + "_y_" + str(y), [ 0, 0, 26, 26], color_gray_black)
+
+# 將繪圖方塊放入陣列.
+for y in range(4):
+    for x in range(4):
+        blocks_next_shape[x][y] = Block(pygame, canvas, "brick_next_x_" + str(x) + "_y_" + str(y), [ 0, 0, 26, 26], color_gray_black)
+
+# 背景區塊.
+background = Block(pygame, canvas, "background", [ 278, 18, 282, 562], color_gray)
+
+# 背景區塊.
+background_blocks_next = Block(pygame, canvas, "background_bricks_next", [ 590, 50, 114, 114], color_gray)
