@@ -320,6 +320,7 @@ def New_block():
     game_over=False
     if (container_y<0):
         game_over=True
+        resetGame()
 # 複製方塊到容器內.
     container_y=container_y-1
     copyToBlockArray()
@@ -340,6 +341,3 @@ def New_block():
     block_next_id=random.randint(1,7)
     #方塊初始狀態
     block_state=0
-    #遊戲結束
-    if (game_over):
-        resetGame()
