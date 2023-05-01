@@ -307,3 +307,39 @@ background = Block(pygame, canvas, "background", [ 278, 18, 282, 562], color_gra
 
 # 背景區塊.
 background_blocks_next = Block(pygame, canvas, "background_bricks_next", [ 590, 50, 114, 114], color_gray)
+#---------------------------------------------------------------------------------------------------------
+# 產生新磚塊.
+#---------------------------------------------------------------------------------------------------------
+def New_block():
+    global game_over,container_x,container_y,block_next_id,block_state,blocks_next_shape,blocks_next
+    global lines_number,game_mode
+    
+
+
+# 判斷遊戲結束.
+    game_over=False
+    if (container_y<0):
+        game_over=True
+# 複製方塊到容器內.
+    container_y=container_y-1
+    copyToBlockArray()
+
+# 判斷與設定要清除的方塊.
+    lines = ifClearBrick() / 10;
+    if (lines>0):
+        lines_number=lines_number+lines
+        # 消除連線數量累加.
+        game_mode =1   #1.消除磚塊
+
+#初始的方塊位置
+    container_x=3
+    container_y=4
+# 現在出現方塊.
+    blocks_id=block_next_id
+    #下一個出現的方塊
+    block_next_id=random.randint(1,7)
+    #方塊初始狀態
+    block_state=0
+    #遊戲結束
+    if (game_over):
+        resetGame()
