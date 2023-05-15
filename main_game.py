@@ -341,3 +341,67 @@ def New_block():
     block_next_id=random.randint(1,7)
     #方塊初始狀態
     block_state=0
+#---------------------------------------------------------------------------------------------------------
+# 清除的方塊.
+#---------------------------------------------------------------------------------------------------------
+def clear_block():
+    global blocks_array
+
+
+    cube=0
+    for x in range(10):
+        for i in range(19):
+            for y in range(20):
+                if(blocks_array[x][y]==9):
+                    if(y>0):
+                        cube=blocks_array[x][y-1]
+                        y=y-1
+#---------------------------------------------------------------------------------------------------------    
+# 主迴圈.
+#---------------------------------------------------------------------------------------------------------
+starting = True
+time_temp = time.time() 
+time_now = 0
+
+# 計算時脈.
+while starting:
+    time_now = time_now + (time_temp - time.time())
+    time_temp = time.time()
+    
+    #---------------------------------------------------------------------
+    # 判斷輸入.
+    #---------------------------------------------------------------------
+    for keyboard in pygame.event.get():
+
+    # 離開遊戲.
+        if keyboard.type == pygame.QUIT:
+            starting =False
+    # 判斷按下按鈕
+        if keyboard.type == pygame.KEYDOWN:
+
+        # 判斷按下ESC按鈕
+            if keyboard.type == pygame.K_ESCAPE:
+                starting = False
+
+        # 除錯訊息開關.
+            elif keyboard.type == pygame.K_d:
+                debug_message ==  False
+        #-----------------------------------------------------------------
+        # 變換方塊-上.
+            elif keyboard.type == pygame.K_UP and game_mode == 0:
+            # 在右邊界不能旋轉.
+                if (container_x == 8):
+                    break
+            # 判斷磚塊N1、N2、I
+                if (block_id == 1 or block_id == 2 or block_id == 7):
+               #長條方塊在邊界不能旋轉
+                        if (block_id == 7):
+                            if (container_x<0 or container_x == 7):
+                                break
+               #旋轉方塊
+                brick_state = brick_state + 1
+                if (brick_state > 1):
+                    brick_state = 0 
+               #轉換要出現的方塊到方塊陣列
+                transformToBlocks(block_id, brick_state)
+               #碰到方塊
