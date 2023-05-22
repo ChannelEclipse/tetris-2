@@ -341,6 +341,9 @@ def New_block():
     block_next_id=random.randint(1,7)
     #方塊初始狀態
     block_state=0
+    
+
+
 #---------------------------------------------------------------------------------------------------------
 # 清除的方塊.
 #---------------------------------------------------------------------------------------------------------
@@ -399,9 +402,157 @@ while starting:
                             if (container_x<0 or container_x == 7):
                                 break
                #旋轉方塊
-                brick_state = brick_state + 1
-                if (brick_state > 1):
-                    brick_state = 0 
+                        block_state = block_state + 1
+                        if (block_state > 1):
+                             block_state = 0 
                #轉換要出現的方塊到方塊陣列
-                transformToBlocks(block_id, brick_state)
+                        transformToBlocks(block_id, block_state)
                #碰到方塊
+                        if (not copyToBlockArray):
+                            block_state = block_state - 1
+                            if (block_state < 0):
+                                block_state = 1
+            # 判斷磚跨L1、L2、T.
+                elif (block_id == 3 or block_id == 4 or block_id == 5):
+                     # 旋轉方塊.
+                     block_state = block_state + 1
+                     if (block_state > 3):
+                             block_state = 0 
+
+                     #轉換要出現的方塊到方塊陣列
+                     transformToBlocks(block_id, block_state)
+                     # 碰到磚塊.
+                     if (not copyToBlockArray):
+                            block_state = block_state - 1
+                            if (block_state < 0):
+                                block_state = 3
+        #-----------------------------------------------------------------
+        # 快速下降-下.
+            elif keyboard.type == pygame.K_DOWN and game_mode == 0:
+                block_down_speed == block_fast
+        #-----------------------------------------------------------------
+        # 移動方塊-左.
+            elif keyboard.key == pygame.K_LEFT and game_mode == 0:
+                container_x = container_x - 1
+                if (container_x < 0):
+                    if (container_x == -1):
+                        if (blocks[0][0] != 0 or blocks[0][1] != 0 or blocks[0][2] != 0 or blocks[0][3] != 0):
+                            container_x = container_x + 1
+                    elif (container_x == -2): 
+                        if (blocks[1][0] != 0 or blocks[1][1] != 0 or blocks[1][2] != 0 or blocks[1][3] != 0):
+                            container_x = container_x + 1
+                    else:
+                        container_x = container_x + 1
+                # 碰到磚塊.
+                if (not ifCopyToBlocksArray()):
+                    container_x = container_x + 1 
+        #-----------------------------------------------------------------
+        # 移動方塊
+            elif keyboard.key == pygame.K_RIGHT and game_mode == 0:
+                container_x = container_x + 1
+                if (container_x > 6):
+                    if (container_x == 7):
+                        if (blocks[3][0] != 0 or blocks[3][1] != 0 or blocks[3][2] != 0 or blocks[3][3] != 0):
+                            container_x = container_x + 1
+                    elif (container_x == -2): 
+                        if (blocks[2][0] != 0 or blocks[2][1] != 0 or blocks[2][2] != 0 or blocks[2][3] != 0):
+                            container_x = container_x - 1
+                    else:
+                        container_x = container_x - 1
+                # 碰到磚塊.
+                if (not ifCopyToBlocksArray()):
+                    container_x = container_x - 1 
+        #-----------------------------------------------------------------
+        # 判斷放開按鈕 
+        if (keyboard.type == pygame.K_UP):
+            if (keyboard.type == pygame.K_DOWN):
+                block_down_speed = block_normal
+    #---------------------------------------------------------------------    
+    # 清除畫面
+    canvas.fill(color_light_gray)
+    #遊戲中
+    
+    if (game_mode == 0):
+        # 處理磚塊下降.
+        if(time_now >= block_down_speed):
+            # 往下降.
+            container_y = container_y + 1; 
+            # 碰到磚塊.
+            if (not ifCopyToBlocksArray()):
+                #產生新塊.
+                New_block()            
+            # 轉換定義方塊到方塊陣列(bricks).
+            transformToBlocks( block_id, block_state)
+            # 清除時脈.
+            time_now = 0
+    # 清除磚塊.
+    elif (game_mode == 1):
+        # 清除的方塊.
+        clear_block()
+        # 遊戲中.
+        game_mode = 0
+        # 轉換定義方塊到方塊陣列.
+        transformToBlocks(block_id, block_state)
+    #---------------------------------------------------------------------    
+    # 更新下一個磚塊圖形
+    updateNextBricks(block_next_id)
+    pos_y = 20
+    background.color = color_black
+    #更新背景
+    background.update()
+
+    for y in range(20):
+        pos_x = 280
+        for x in range(10):
+            if(blocks_array[x][y] != 0):
+                blocks_list[x][y].rect[0] = pos_x
+                blocks_list[x][y].rect[1] = pos_y
+
+                # ColorVer:依照方塊編號設定顏色.
+                if (blocks_array[x][y] == 1):
+                    blocks_array[x][y].color =box_color_orange
+                elif (blocks_array[x][y] == 2):
+                    blocks_array[x][y].color =box_color_purple
+                elif (blocks_array[x][y] == 3):
+                    blocks_array[x][y].color =box_color_blue
+                elif (blocks_array[x][y] == 4):
+                    blocks_array[x][y].color =box_color_light_red
+                elif (blocks_array[x][y] == 5):
+                    blocks_array[x][y].color =box_color_light_blue
+                elif (blocks_array[x][y] == 6):
+                    blocks_array[x][y].color =box_color_yellow
+                elif (blocks_array[x][y] == 7):
+                    blocks_array[x][y].color =box_color_green
+                blocks_list[x][y].update()
+            else:
+                blocks_array[x][y].color =color_gray_black
+
+            pos_x = pos_x + 28
+        pos_y = pos_y + 28   
+    # 更新掉落中方塊
+    for y in range(4):
+        for x in range(4):            
+            if (blocks[x][y] != 0):
+                posX = container_x + x
+                posY = container_y + y
+                if (posX >= 0 and posY >= 0):
+                    blocks_list[posX][posY].rect[0] = (posX * 28) + 280
+                    blocks_list[posX][posY].rect[1] = (posY * 28) + 20
+
+                    if (blocks_array[x][y] == 1):
+                        blocks_array[posX][posY].color =box_color_orange
+                    elif (blocks_array[x][y] == 2):
+                        blocks_array[posX][posY].color =box_color_purple
+                    elif (blocks_array[x][y] == 3):
+                        blocks_array[posX][posY].color =box_color_blue
+                    elif (blocks_array[x][y] == 4):
+                        blocks_array[posX][posY].color =box_color_light_red
+                    elif (blocks_array[x][y] == 5):
+                        blocks_array[posX][posY].color =box_color_light_blue
+                    elif (blocks_array[x][y] == 6):
+                        blocks_array[posX][posY].color =box_color_yellow
+                    elif (blocks_array[x][y] == 7):
+                        blocks_array[posX][posY].color =box_color_green
+                    elif (blocks_array[x][y] == 9):
+                        blocks_array[posX][posY].color =color_white
+                    blocks_list[posX][pos_y]
